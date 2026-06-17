@@ -80,13 +80,12 @@ COPY plugins/_official ./plugins/_official
 
 FROM ${RUNTIME_IMAGE}
 
-RUN apk add --no-cache tini poppler-utils curl && \
+RUN apk add --no-cache tini poppler-utils curl bash tar && \
     addgroup -S -g 1001 open-design && \
-    adduser -S -D -H -u 1001 -G open-design open-design
-
-RUN curl -fsSL https://opencode.ai/install | bash && \
-    mv /root/.local/bin/opencode /usr/local/bin/opencode && \
-    chmod +x /usr/local/bin/opencode
+    adduser -S -D -H -u 1001 -G open-design open-design && \
+    curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path && \
+    mv /root/.opencode/bin/opencode /usr/local/bin/opencode && \
+    rm -rf /root/.opencode
 
 WORKDIR /app
 COPY --from=build --chown=open-design:open-design /app/deploy/daemon ./apps/daemon
@@ -111,6 +110,7 @@ ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max-old-space-size=192
 ENV OD_BIND_HOST=0.0.0.0
 ENV OD_PORT=7456
+ENV OPENCODE_BIN=/usr/local/bin/opencode
 
 EXPOSE 7456
 

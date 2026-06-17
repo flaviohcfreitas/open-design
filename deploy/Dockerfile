@@ -80,9 +80,13 @@ COPY plugins/_official ./plugins/_official
 
 FROM ${RUNTIME_IMAGE}
 
-RUN apk add --no-cache tini poppler-utils && \
+RUN apk add --no-cache tini poppler-utils curl && \
     addgroup -S -g 1001 open-design && \
     adduser -S -D -H -u 1001 -G open-design open-design
+
+RUN curl -fsSL https://opencode.ai/install | bash && \
+    mv /root/.local/bin/opencode /usr/local/bin/opencode && \
+    chmod +x /usr/local/bin/opencode
 
 WORKDIR /app
 COPY --from=build --chown=open-design:open-design /app/deploy/daemon ./apps/daemon
